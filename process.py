@@ -46,19 +46,25 @@ def get_train_genes(fname):
     return pd.unique(gene_id)
 
 
-train_root = 'data/E003/classification/train.csv'
-gene_id = get_train_genes(train_root)
 path = '57epigenomes.RPKM.pc'
 
 lst = readPd(path)[2:-1]
+
+"""
+Train correlation
+"""
+status = "train"
+train_root = 'data/E003/classification/train.csv'
+gene_id = get_train_genes(train_root)
+
 smallest_key = len(min(gene_id, key=len))
 bool_pd = np.isin(lst.columns.str[-smallest_key:], gene_id)
 train_pd = lst.T[bool_pd]
 
 corr_pd = cluster_corr(train_pd.corr())
 corr = np.array(corr_pd)
-np.savez("correlation_matrix.npz", corr)
-corr_pd.to_csv("correlation_pd.csv")
+np.savez("correlation_matrix_" + status + ".npz", corr)
+corr_pd.to_csv("correlation_pd_" + status + ".csv")
 figure, ax = plt.subplots(1, 2, figsize=(56, 20))
 for i in range(len(lst)):
     one_corr = corr[i, :]
@@ -67,4 +73,49 @@ for i in range(len(lst)):
     ax[0].plot(np.arange(len(lst)), one_corr)
 sn.heatmap(corr_pd, xticklabels=True, yticklabels=True, cmap="seismic")
 
-figure.savefig("Correlation" + path[-2:] + ".png")
+figure.savefig("Correlation " + status + " " + path[-2:] + ".png")
+
+"""
+Test correlation
+"""
+status = "test"
+train_root = 'data/E003/classification/test.csv'
+gene_id = get_train_genes(train_root)
+
+smallest_key = len(min(gene_id, key=len))
+bool_pd = np.isin(lst.columns.str[-smallest_key:], gene_id)
+train_pd = lst.T[bool_pd]
+
+corr_pd = cluster_corr(train_pd.corr())
+corr = np.array(corr_pd)
+np.savez("correlation_matrix_" + status + ".npz", corr)
+corr_pd.to_csv("correlation_pd_" + status + ".csv")
+figure, ax = plt.subplots(1, 2, figsize=(56, 20))
+for i in range(len(lst)):
+    one_corr = corr[i, :]
+    one_corr.sort()
+    one_corr = one_corr[::-1]
+    ax[0].plot(np.arange(len(lst)), one_corr)
+sn.heatmap(corr_pd, xticklabels=True, yticklabels=True, cmap="seismic")
+
+figure.savefig("Correlation " + status + " " + path[-2:] + ".png")
+
+"""
+Overall correlation
+"""
+train_pd = lst.T
+print(lst.shape)
+status = "overall"
+corr_pd = cluster_corr(train_pd.corr())
+corr = np.array(corr_pd)
+np.savez("correlation_matrix_" + status + ".npz", corr)
+corr_pd.to_csv("correlation_pd_" + status + ".csv")
+figure, ax = plt.subplots(1, 2, figsize=(56, 20))
+for i in range(len(lst)):
+    one_corr = corr[i, :]
+    one_corr.sort()
+    one_corr = one_corr[::-1]
+    ax[0].plot(np.arange(len(lst)), one_corr)
+sn.heatmap(corr_pd, xticklabels=True, yticklabels=True, cmap="seismic")
+
+figure.savefig("Correlation " + status + " " + path[-2:] + ".png")
