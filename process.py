@@ -1,8 +1,6 @@
-import csv
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sn
-import scipy
 import scipy.cluster.hierarchy as sch
 import pandas as pd
 
@@ -43,21 +41,21 @@ def readPd(root):
 
 
 def get_train_genes(fname):
-    df = pd.read_csv(fname)
+    df = pd.read_csv(fname, dtype=str)
     gene_id = df.iloc[:, 0].astype(str)
     return pd.unique(gene_id)
 
 
 train_root = 'data/E003/classification/train.csv'
 gene_id = get_train_genes(train_root)
-gene_id = 'ENSG00000' + gene_id[:]
-print(gene_id)
 path = '57epigenomes.RPKM.pc'
 
-lst = readPd(path)[1:-1]
-train_pd = lst[gene_id]
+lst = readPd(path)[2:-1]
+smallest_key = len(min(gene_id, key=len))
+bool_pd = np.isin(lst.columns.str[-smallest_key:], gene_id)
+train_pd = lst.T[bool_pd]
 
-corr_pd = cluster_corr(train_pd.T.corr())
+corr_pd = cluster_corr(train_pd.corr())
 corr = np.array(corr_pd)
 np.savez("correlation_matrix.npz", corr)
 corr_pd.to_csv("correlation_pd.csv")
