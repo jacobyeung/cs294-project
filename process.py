@@ -42,20 +42,31 @@ def readPd(root):
     return df.T
 
 
-paths = ['57epigenomes.RPKM.pc']
+def get_train_genes(fname):
+    df = pd.read_csv(fname)
+    gene_id = df.iloc[:, 0].astype(str)
+    return pd.unique(gene_id)
 
-for path in paths:
-    lst = readPd(path)[1:-1]
-    corr_pd = cluster_corr(lst.T.corr())
-    corr = np.array(corr_pd)
-    np.savez("correlation_matrix.npz", corr)
-    corr_pd.to_csv("correlation_pd.csv")
-    figure, ax = plt.subplots(1, 2, figsize=(56, 20))
-    for i in range(len(lst)):
-        one_corr = corr[i, :]
-        one_corr.sort()
-        one_corr = one_corr[::-1]
-        ax[0].plot(np.arange(len(lst)), one_corr)
-    sn.heatmap(corr_pd, xticklabels=True, yticklabels=True, cmap="seismic")
 
-    figure.savefig("Correlation" + path[-2:] + ".png")
+train_root = 'data/E003/classification/train.csv'
+gene_id = get_train_genes(train_root)
+gene_id = 'ENSG00000' + gene_id[:]
+print(gene_id)
+path = '57epigenomes.RPKM.pc'
+
+lst = readPd(path)[1:-1]
+train_pd = lst[gene_id]
+
+corr_pd = cluster_corr(train_pd.T.corr())
+corr = np.array(corr_pd)
+np.savez("correlation_matrix.npz", corr)
+corr_pd.to_csv("correlation_pd.csv")
+figure, ax = plt.subplots(1, 2, figsize=(56, 20))
+for i in range(len(lst)):
+    one_corr = corr[i, :]
+    one_corr.sort()
+    one_corr = one_corr[::-1]
+    ax[0].plot(np.arange(len(lst)), one_corr)
+sn.heatmap(corr_pd, xticklabels=True, yticklabels=True, cmap="seismic")
+
+figure.savefig("Correlation" + path[-2:] + ".png")
