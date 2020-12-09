@@ -3,3 +3,5 @@ data.tar.gz
 57*
 *.npz
 *.csv
+*.tar
+gene_level_results/
