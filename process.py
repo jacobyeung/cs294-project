@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas
 import seaborn as sn
 import scipy.cluster.hierarchy as sch
 import pandas as pd
@@ -55,7 +54,7 @@ lst = readPd(path)[2:-1]
 Train correlation
 """
 status = "train_sorted"
-train_root = 'data/E003/classification/train.csv'
+train_root = 'gene_expression_294/dataset/E003/classification/train.csv'
 gene_id = get_train_genes(train_root)
 
 smallest_key = len(min(gene_id, key=len))
